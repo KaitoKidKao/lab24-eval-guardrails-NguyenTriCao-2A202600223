@@ -1,0 +1,14 @@
+python-dotenv
+qdrant-client
+sentence-transformers
+openai
+cohere
+rank_bm25
+underthesea
+ragas
+datasets
+pandas
+pytest
+FlagEmbedding
+pypdf
+langchain-openai
