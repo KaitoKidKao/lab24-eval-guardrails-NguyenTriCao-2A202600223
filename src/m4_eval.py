@@ -154,13 +154,16 @@ def failure_analysis(eval_results: list[EvalResult], bottom_n: int = 10) -> list
     return failures
 
 
-def save_report(results: dict, failures: list[dict], path: str = "ragas_report.json"):
-    """Save evaluation report to JSON. (Đã implement sẵn)"""
+def save_report(results: dict, failures: list[dict], path: str = "ragas_report.json", latency_info: dict = None):
+    """Save evaluation report to JSON. (Đã cập nhật để hỗ trợ latency)"""
     report = {
         "aggregate": {k: v for k, v in results.items() if k != "per_question"},
         "num_questions": len(results.get("per_question", [])),
         "failures": failures,
     }
+    if latency_info:
+        report["latency"] = latency_info
+
     with open(path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     print(f"Report saved to {path}")

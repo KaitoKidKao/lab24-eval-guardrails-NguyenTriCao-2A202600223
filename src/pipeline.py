@@ -41,7 +41,7 @@ def build_pipeline():
         all_chunks = enriched_data + remaining_data
         print(f"  Enriched {len(enriched)} chunks (First {limit} chunks)")
     else:
-        print("  ⚠️  M5 not implemented — using raw chunks (fallback)")
+        print("  WARNING: M5 not implemented — using raw chunks (fallback)")
 
     # Step 3: Index (M2)
     print("\n[3/4] Indexing (BM25 + Dense)...")
@@ -55,17 +55,24 @@ def build_pipeline():
     return search, reranker
 
 
-def run_query(query: str, search: HybridSearch, reranker: CrossEncoderReranker) -> tuple[str, list[str]]:
-    """Run single query through pipeline."""
+def run_query(query: str, search: HybridSearch, reranker: CrossEncoderReranker) -> tuple[str, list[str], dict]:
+    """Run single query through pipeline with latency breakdown."""
+    latency = {}
+
     # 1. Retrieval (Hybrid)
+    t0 = time.perf_counter()
     results = search.search(query)
+    latency["retrieval_ms"] = (time.perf_counter() - t0) * 1000
     
     # 2. Reranking
+    t1 = time.perf_counter()
     docs = [{"text": r.text, "score": r.score, "metadata": r.metadata} for r in results]
     reranked = reranker.rerank(query, docs, top_k=RERANK_TOP_K)
     contexts = [r.text for r in reranked] if reranked else [r.text for r in results[:3]]
+    latency["rerank_ms"] = (time.perf_counter() - t1) * 1000
 
     # 3. Generation (LLM)
+    t2 = time.perf_counter()
     from openai import OpenAI
     from config import OPENAI_API_KEY
     
@@ -83,17 +90,21 @@ def run_query(query: str, search: HybridSearch, reranker: CrossEncoderReranker) 
                 1. KHÔNG sử dụng kiến thức bên ngoài ngữ cảnh.
                 2. Nếu ngữ cảnh không chứa thông tin để trả lời, hãy nói: 'Tôi không tìm thấy thông tin này trong tài liệu.'
                 3. Trích dẫn thông tin chính xác từ ngữ cảnh. KHÔNG suy diễn hoặc thêm thắt.
-                4. Giữ câu trả lời khách quan, trung thực và súc tích."""},
+                4. Giữ câu trả lời khách quan, trung thực và súc tích.
+                5. Hãy trả lời bằng tiếng Việt."""},
                 {"role": "user", "content": f"Dưới đây là các đoạn ngữ cảnh trích xuất từ tài liệu:\n{context_str}\n\nDựa trên các đoạn trên, hãy trả lời câu hỏi: {query}"},
             ],
-            temperature=0.1, # Giảm sáng tạo để tăng tính trung thực
+            temperature=0.0, # Tối thiểu sáng tạo để tối đa tính trung thực (Bonus Faithfulness)
         )
         answer = resp.choices[0].message.content.strip()
     except Exception as e:
         print(f"Error in LLM Generation: {e}")
         answer = contexts[0] if contexts else "Không tìm thấy thông tin."
+    
+    latency["generation_ms"] = (time.perf_counter() - t2) * 1000
+    latency["total_ms"] = sum(latency.values())
         
-    return answer, contexts
+    return answer, contexts, latency
 
 
 def evaluate_pipeline(search: HybridSearch, reranker: CrossEncoderReranker):
@@ -101,18 +112,22 @@ def evaluate_pipeline(search: HybridSearch, reranker: CrossEncoderReranker):
     print("\n[Eval] Running queries...")
     test_set = load_test_set()
     questions, answers, all_contexts, ground_truths = [], [], [], []
-    latencies = []
+    all_latencies = []
 
     for i, item in enumerate(test_set):
-        t0 = time.perf_counter()
-        answer, contexts = run_query(item["question"], search, reranker)
-        latencies.append((time.perf_counter() - t0) * 1000)
+        # Nghỉ 6 giây giữa mỗi câu để tránh lỗi Rate Limit của Cohere Trial Key (10 calls/min)
+        if i > 0:
+            print(f"  Waiting 6s to respect Rate Limits...")
+            time.sleep(6)
+
+        answer, contexts, latency = run_query(item["question"], search, reranker)
+        all_latencies.append(latency)
         
         questions.append(item["question"])
         answers.append(answer)
         all_contexts.append(contexts)
         ground_truths.append(item["ground_truth"])
-        print(f"  [{i+1}/{len(test_set)}] {item['question'][:50]}...")
+        print(f"  [{i+1}/{len(test_set)}] {item['question'][:50]}... ({latency['total_ms']:.0f}ms)")
 
     print("\n[Eval] Running RAGAS...")
     results = evaluate_ragas(questions, answers, all_contexts, ground_truths)
@@ -124,17 +139,25 @@ def evaluate_pipeline(search: HybridSearch, reranker: CrossEncoderReranker):
         s = results.get(m, 0)
         print(f"  {'✓' if s >= 0.75 else '✗'} {m}: {s:.4f}")
 
-    failures = failure_analysis(results.get("per_question", []))
-    save_report(results, failures)
-    
-    # Bonus: Latency Breakdown
+    # Aggregating Latency Breakdown
     import numpy as np
+    avg_latencies = {
+        "retrieval": np.mean([l["retrieval_ms"] for l in all_latencies]),
+        "rerank": np.mean([l["rerank_ms"] for l in all_latencies]),
+        "generation": np.mean([l["generation_ms"] for l in all_latencies]),
+        "total": np.mean([l["total_ms"] for l in all_latencies]),
+    }
+
     print("\n" + "=" * 60)
-    print("LATENCY BREAKDOWN (PER QUERY)")
+    print("LATENCY BREAKDOWN (AVG)")
     print("=" * 60)
-    print(f"  Avg Latency: {np.mean(latencies):.1f}ms")
-    print(f"  Min Latency: {np.min(latencies):.1f}ms")
-    print(f"  Max Latency: {np.max(latencies):.1f}ms")
+    print(f"  1. Retrieval:  {avg_latencies['retrieval']:>6.1f} ms")
+    print(f"  2. Reranking:  {avg_latencies['rerank']:>6.1f} ms")
+    print(f"  3. Generation: {avg_latencies['generation']:>6.1f} ms")
+    print(f"  {'Total:':<14} {avg_latencies['total']:>6.1f} ms")
+
+    failures = failure_analysis(results.get("per_question", []))
+    save_report(results, failures, latency_info=avg_latencies)
     
     return results
 

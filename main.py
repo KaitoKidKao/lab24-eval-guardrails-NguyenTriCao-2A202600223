@@ -21,13 +21,13 @@ def main():
     os.makedirs("reports", exist_ok=True)
 
     # Step 1: Basic Baseline
-    print("\n📌 STEP 1: Running Basic RAG Baseline...")
+    print("\n[STEP 1] Running Basic RAG Baseline...")
     print("-" * 40)
     from naive_baseline import main as run_baseline
     run_baseline()
 
     # Step 2: Production Pipeline
-    print("\n📌 STEP 2: Running Production Pipeline...")
+    print("\n[STEP 2] Running Production Pipeline...")
     print("-" * 40)
     from src.pipeline import build_pipeline, evaluate_pipeline
     search, reranker = build_pipeline()
@@ -36,7 +36,8 @@ def main():
     # Move reports to reports/
     for f in ["ragas_report.json", "naive_baseline_report.json"]:
         if os.path.exists(f):
-            os.rename(f, f"reports/{f}")
+            # Dùng os.replace thay vì os.rename để cho phép ghi đè trên Windows
+            os.replace(f, f"reports/{f}")
 
     # Step 3: Comparison
     print("\n📌 STEP 3: Comparison")
@@ -60,8 +61,8 @@ def main():
             print(f"{status} {m:<23} {n:>8.4f} {p:>12.4f} {d:>+8.4f}")
 
     elapsed = time.time() - start
-    print(f"\n⏱️  Total time: {elapsed:.1f}s")
-    print("\n📋 Next steps:")
+    print(f"\nTotal time: {elapsed:.1f}s")
+    print("\nNext steps:")
     print("  1. Điền analysis/failure_analysis.md")
     print("  2. Điền analysis/group_report.md")
     print("  3. Viết analysis/reflections/reflection_[Tên].md")

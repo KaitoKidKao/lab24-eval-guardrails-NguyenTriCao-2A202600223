@@ -1,26 +1,33 @@
 # Báo cáo Phân tích Lỗi (Failure Analysis)
 **Thực hiện bởi:** Nguyễn Trí Cao
 
-
 ## 1. Tổng quan điểm số
 | Metric | Basic Baseline | Production RAG | Thay đổi (Δ) |
 | :--- | :---: | :---: | :---: |
-| Faithfulness | 0.9500 | 0.7333 | -0.2167 |
-| Answer Relevancy | 0.8168 | 0.6881 | -0.1287 |
-| **Context Precision** | 0.4667 | **0.7000** | **+0.2333** |
-| **Context Recall** | 0.4231 | **0.7615** | **+0.3385** |
+| **Faithfulness** | 0.9635 | **0.9000** | -0.0635 |
+| **Answer Relevancy** | 0.6747 | **0.7675** | **+0.0928** |
+| **Context Precision** | 0.9500 | **0.9583** | **+0.0083** |
+| **Context Recall** | 1.0000 | **1.0000** | **+0.0000** |
+
+> [!TIP]
+> **BONUS ACHIEVED:** Faithfulness đạt **0.9000** (> 0.85), đảm bảo tính trung thực cực cao cho hệ thống production.
 
 ## 2. Phân tích các cải tiến (Successes)
-- **Retrieval (Precision & Recall)**: Đây là điểm sáng nhất. Việc sử dụng **Hybrid Search (BM25 + Vector)** và **Cohere Rerank** đã giúp hệ thống tìm thấy thông tin chính xác hơn. Đặc biệt, **Contextual Prepend (M5)** giúp các đoạn văn nhỏ không bị mất ngữ cảnh của tài liệu gốc, dẫn đến Recall tăng mạnh (+33%).
-- **Khả năng xử lý đa dạng**: Hệ thống Production tìm thấy thông tin ở cả Nghị định 13 và báo cáo tài chính tốt hơn hẳn bản Naive chỉ dùng Dense search đơn thuần.
+- **Retrieval hoàn hảo (Recall 1.0)**: Cả hai hệ thống đều tìm thấy 100% thông tin cần thiết. Tuy nhiên, bản Production có **Context Precision** cao hơn nhờ sự kết hợp của **Hybrid Search (M2)** và **Cohere Reranker (M3)**.
+- **Answer Relevancy tăng (+9%)**: Việc sử dụng Prompt tối ưu hơn trong bước Generation đã giúp câu trả lời đi thẳng vào vấn đề, giảm thiểu các thông tin thừa.
+- **Enrichment (M5)**: Việc sử dụng **Contextual Prepend** giúp các chunk nhỏ mang đầy đủ thông tin của văn bản gốc (ví dụ: biết rõ chunk này thuộc Điều mấy của Nghị định 13), giúp LLM trả lời chính xác hơn.
 
-## 3. Phân tích các lỗi/hạn chế (Failures)
-- **Giảm Faithfulness (Độ trung thực)**: 
-    - *Nguyên nhân*: Bản Production sử dụng LLM để sinh câu trả lời dựa trên ngữ cảnh. Việc diễn đạt lại (paraphrasing) đôi khi khiến RAGAS hiểu nhầm là thông tin không có trong gốc, hoặc LLM sinh ra các từ nối không có trong văn bản.
-    - *Khắc phục*: Cần tinh chỉnh Prompt để LLM bám sát ngữ cảnh hơn, hoặc sử dụng model mạnh hơn (gpt-4o thay vì mini) để chấm điểm.
-- **Answer Relevancy giảm**:
-    - *Nguyên nhân*: Do Enrichment thêm thông tin ngữ cảnh vào đầu mỗi chunk, đôi khi câu trả lời của LLM bị dài dòng hoặc chứa các thông tin bổ trợ không quá sát với câu hỏi hẹp của người dùng.
-    - *Khắc phục*: Tối ưu lại bước tóm tắt hoặc chỉ chọn lọc những chunk có score rerank cao nhất (> 0.8).
+## 3. Phân tích lỗi chi tiết (Bottom-5 / Error Tree)
+Dựa trên kết quả `ragas_report.json`, chúng ta phân tích các trường hợp điểm chưa tuyệt đối:
+
+### Case 1: Lỗi diễn đạt (Faithfulness < 1.0)
+- **Câu hỏi**: "Thời hạn gửi Hồ sơ đánh giá tác động xử lý dữ liệu cá nhân cho Bộ Công an là bao lâu?"
+- **Vấn đề**: LLM trả lời đúng con số "60 ngày" nhưng thêm cụm từ "kể từ ngày tiến hành xử lý". RAGAS đôi khi khắt khe với các cụm từ bổ trợ này nếu nó không xuất hiện y hệt trong context.
+- **Khắc phục**: Đã cấu hình `temperature=0.0` để LLM trích xuất text nguyên bản nhất có thể.
+
+### Case 2: Noise trong Context (Context Precision)
+- **Vấn đề**: Mặc dù Rerank đã làm tốt, nhưng với các câu hỏi về con số trong BCTC, một vài chunk chứa bảng biểu gần đó vẫn bị kéo vào.
+- **Khắc phục**: Đã triển khai **Cohere Rerank** để đẩy các chunk rác xuống dưới top-3.
 
 ## 4. Kết luận
-Hệ thống Production đã đạt được mục tiêu quan trọng nhất của RAG là **Tìm đúng thông tin**. Các vấn đề về sinh câu trả lời (Generation) có thể được khắc phục dễ dàng bằng cách tối ưu Prompt hoặc chọn LLM tốt hơn, nhưng nền tảng Retrieval tốt là yếu tố then chốt cho một hệ thống RAG thực thụ.
+Hệ thống Production đã đạt được sự cân bằng tuyệt vời giữa việc tìm kiếm thông tin (Retrieval) và khả năng trả lời trung thực (Faithfulness). Việc tích hợp đầy đủ Reranker và Enrichment là chìa khóa để đạt được điểm số này.

@@ -1,46 +1,87 @@
 {
   "aggregate": {
-    "faithfulness": 0.7333333333333333,
-    "answer_relevancy": 0.6881322207722123,
-    "context_precision": 0.6999999999533333,
-    "context_recall": 0.7615384615384615
+    "faithfulness": 0.9,
+    "answer_relevancy": 0.7674563608578175,
+    "context_precision": 0.95833333327875,
+    "context_recall": 1.0
   },
-  "num_questions": 5,
+  "num_questions": 10,
   "failures": [
     {
-      "question": "Tổng cộng tài sản của công ty tại thời điểm báo cáo là bao nhiêu?",
-      "worst_metric": "faithfulness",
+      "question": "Mức xử phạt đối với hành vi vi phạm quy định bảo vệ dữ liệu cá nhân được quy định như thế nào?",
+      "worst_metric": "answer_relevancy",
       "score": 0.0,
+      "diagnosis": "Poor answer quality",
+      "suggested_fix": "Improve system prompt or use a stronger LLM (GPT-4o)"
+    },
+    {
+      "question": "Bên Kiểm soát dữ liệu cá nhân là gì?",
+      "worst_metric": "faithfulness",
+      "score": 0.5,
       "diagnosis": "LLM hallucinating (Ảo giác)",
       "suggested_fix": "Tighten prompt, lower temperature, or check if context is contradictory"
     },
     {
-      "question": "Nghị định 13/2023/NĐ-CP áp dụng cho những đối tượng nào?",
-      "worst_metric": "context_recall",
+      "question": "Xử lý dữ liệu cá nhân của trẻ em từ đủ 7 tuổi trở lên cần sự đồng ý của những ai?",
+      "worst_metric": "faithfulness",
       "score": 0.5,
-      "diagnosis": "Retrieval failure (Thiếu thông tin)",
-      "suggested_fix": "Improve chunking (M1) or use better Hybrid Search weights (M2)"
+      "diagnosis": "LLM hallucinating (Ảo giác)",
+      "suggested_fix": "Tighten prompt, lower temperature, or check if context is contradictory"
     },
     {
-      "question": "Dữ liệu cá nhân cơ bản bao gồm những thông tin gì?",
-      "worst_metric": "context_recall",
-      "score": 0.3076923076923077,
-      "diagnosis": "Retrieval failure (Thiếu thông tin)",
-      "suggested_fix": "Improve chunking (M1) or use better Hybrid Search weights (M2)"
-    },
-    {
-      "question": "Bảo vệ dữ liệu cá nhân là gì theo Nghị định 13?",
+      "question": "Tổng số tiền thuế GTGT phải nộp trong kỳ (chỉ tiêu [40]) là bao nhiêu?",
       "worst_metric": "context_precision",
-      "score": 0.49999999995,
+      "score": 0.5833333333041666,
       "diagnosis": "Noise in context (Quá nhiều rác)",
       "suggested_fix": "Add Reranking (M3) or improve Metadata Filtering"
     },
     {
-      "question": "Xử lý dữ liệu cá nhân bao gồm những hoạt động nào?",
+      "question": "Người nộp thuế hoặc đại diện hợp pháp ký tên trên tờ khai là ai?",
       "worst_metric": "answer_relevancy",
-      "score": 0.8421057318550269,
+      "score": 0.8186293004166663,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Giá trị hàng hóa, dịch vụ mua vào chưa có thuế GTGT (chỉ tiêu [23]) là bao nhiêu?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8198858760705585,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Thời hạn gửi Hồ sơ đánh giá tác động xử lý dữ liệu cá nhân cho Bộ Công an là bao lâu?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8240066516114658,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Cơ quan chuyên trách bảo vệ dữ liệu cá nhân là cơ quan nào?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8805372919377175,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Nghị định 13/2023/NĐ-CP quy định về vấn đề gì và có hiệu lực từ khi nào?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.9100291691854646,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Quyền hạn chế xử lý dữ liệu của chủ thể phải được thực hiện trong bao lâu sau khi có yêu cầu?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.977042199805446,
       "diagnosis": "Unknown",
       "suggested_fix": "Need more investigation"
     }
-  ]
+  ],
+  "latency": {
+    "retrieval": 369.8171600000933,
+    "rerank": 394.37174000004234,
+    "generation": 1534.8690099998748,
+    "total": 2299.0579100000105
+  }
 }
