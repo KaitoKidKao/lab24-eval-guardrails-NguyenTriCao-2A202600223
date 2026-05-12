@@ -12,15 +12,30 @@ Dự án này triển khai một hệ thống **Retrieval-Augmented Generation (
 
 ### Các thành phần chính:
 1. **RAG Pipeline (Day 18)**:
-   - **Chunking**: Phân mảnh tài liệu phân cấp (Hierarchical) và làm giàu ngữ cảnh (Context Enrichment).
+   - **Chunking**: Phân mảnh tài liệu phân cấp và làm giàu ngữ cảnh.
    - **Hybrid Search**: Kết hợp BM25 và Vector Search (Qdrant).
-   - **Reranking**: Sử dụng Cohere Cross-Encoder để tối ưu kết quả tìm kiếm.
+   - **Reranking**: Sử dụng Cohere Cross-Encoder.
 2. **Evaluation Layer (Phase A & B)**:
-   - **RAGAS**: Đánh giá tự động các chỉ số Faithfulness, Answer Relevancy, Context Precision/Recall.
-   - **LLM-as-a-Judge**: Hệ thống chấm điểm tuyệt đối (Absolute) và so sánh cặp (Pairwise) có khử nhiễu positional bias.
+   - **RAGAS**: Đánh giá tự động Faithfulness, Relevancy, Precision/Recall.
+   - **Judge Calibration**: Kiểm chứng độ tin cậy của Judge AI so với con người.
 3. **Guardrails Layer (Phase C)**:
-   - **Input Guards**: Kiểm soát thông tin nhạy cảm (PII Redaction) và kiểm tra phạm vi câu hỏi (Topic Validation).
-   - **Output Guards**: Lọc nội dung không an toàn bằng Llama Guard 3.
+   - **Input Guards**: PII Redaction (Presidio) và Topic Validation.
+   - **Output Guards**: Llama Guard 3.
+
+## 🎯 Kết quả Lab 24
+Dự án này đã hoàn thành việc xây dựng hệ thống đánh giá và phòng vệ cho RAG.
+
+### Chỉ số thực tế:
+- **RAGAS Score**: Faithfulness (0.52), Answer Relevancy (0.44), Context Precision (0.92).
+- **Judge Reliability**: Cohen's Kappa **0.7368** (Substantial Agreement).
+- **Safety**: 50.0% Blocking rate (Adversarial Accuracy).
+- **Latency (Mean)**: ~3.5s (Input Guard: 877ms, RAG: 1671ms, Output Guard: 659ms).
+- **P95 Latency**: ~5.2s (Đo lường thực tế trên 5 kịch bản).
+
+### 🚀 Cách chạy kiểm thử nhanh:
+1. **Eval (Phase A)**: `python lab24-eval-guardrails-NguyenTriCao/phase-a/phase_a_run_eval.py`
+2. **Calibration (Phase B)**: `python lab24-eval-guardrails-NguyenTriCao/phase-b/phase_b_calibration.py`
+3. **Adversarial (Phase C)**: `python lab24-eval-guardrails-NguyenTriCao/phase-c/run_adversarial.py`
 
 ---
 

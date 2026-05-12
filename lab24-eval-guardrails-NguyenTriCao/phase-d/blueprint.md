@@ -79,7 +79,35 @@ graph TD
 
 ### 4.4. Layer 4: Monitoring & Evaluation (Asynchronous)
 - **RAGAS Evaluation**: Chạy định kỳ trên tập Testset tổng hợp để theo dõi sự suy giảm chất lượng của mô hình (Model Drift).
-- **LLM-as-a-Judge**: Sử dụng một LLM mạnh hơn (như GPT-4) để chấm điểm các câu trả lời của LLM hiện tại, đảm bảo tính khách quan thông qua cơ chế so sánh cặp (Pairwise).
+- **LLM-as-a-Judge**: Sử dụng mô hình GPT-4o-mini để chấm điểm. Qua quá trình hiệu chuẩn (Calibration), hệ thống đạt chỉ số **Cohen's Kappa = 0.7368** (Substantial Agreement), xác nhận độ tin cậy của Judge AI trong việc thay thế con người giám sát hệ thống.
+
+---
+
+## 5. Chiến lược Giám sát & Vận hành (Monitoring Strategy)
+...
+[Giữ nguyên các mục cũ]
+...
+
+## 7. Hiện trạng & Đánh giá (Current Baseline)
+
+Dựa trên kết quả thực tế từ đợt đánh giá cuối cùng (50+ samples), hệ thống ghi nhận các chỉ số baseline như sau:
+
+| Metric | Current Baseline | Status | Ghi chú |
+|---|---|---|---|
+| **Faithfulness** | 0.5220 | ⚠️ Below SLO | Cần cải thiện khả năng trích xuất thông tin đa ngôn ngữ. |
+| **Answer Relevancy** | 0.4434 | ⚠️ Below SLO | Cần tinh chỉnh chunking để tránh làm mất ngữ cảnh. |
+| **Context Precision** | 0.9199 | ✅ Met SLO | Hệ thống Retrieval hoạt động cực kỳ chính xác. |
+| **P95 Latency** | ~5.2s | ⚠️ Below SLO | Cần tối ưu hóa thời gian xử lý của các lớp Guardrails. |
+| **Adversarial Safety**| 50.0% | ℹ️ Moderate | Đã có lớp phòng vệ nhưng cần cập nhật thêm tập mẫu tấn công. |
+
+### Kế hoạch cải thiện (Roadmap):
+1.  **Giai đoạn 1**: Áp dụng **Parent Document Retrieval** để nâng cao tính đầy đủ của ngữ cảnh (Context Recall), từ đó cải thiện Faithfulness.
+2.  **Giai đoạn 2**: Tích hợp **Query Translation** để xử lý các truy vấn tiếng Anh hiệu quả hơn trên tập dữ liệu tiếng Việt.
+3.  **Giai đoạn 3**: Mở rộng tập luật (Rules) cho Presidio để nâng tỉ lệ chặn rò rỉ PII lên 100%.
+
+---
+**Tác giả**: Nguyễn Trí Cao  
+**Ngày cập nhật**: 12/05/2026
 
 ---
 

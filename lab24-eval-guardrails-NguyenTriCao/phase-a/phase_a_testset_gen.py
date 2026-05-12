@@ -53,11 +53,11 @@ def generate_testset():
 
     print("Generating test set (size=50)...")
     from ragas.run_config import RunConfig
-    run_config = RunConfig(max_workers=2, timeout=300)
+    run_config = RunConfig(max_workers=4, timeout=600)
 
     testset = generator.generate_with_langchain_docs(
         documents=documents,
-        testset_size=5,
+        testset_size=50,
         query_distribution=query_distribution,
         with_debugging_logs=True,
         raise_exceptions=False,

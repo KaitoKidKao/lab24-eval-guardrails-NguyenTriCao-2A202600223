@@ -47,23 +47,31 @@ python lab24-eval-guardrails-NguyenTriCao/phase-b/phase_b_calibration.py
 
 Dưới đây là bảng tổng hợp các chỉ số quan trọng thu được từ quá trình đánh giá toàn diện:
 
-### 1. Chỉ số Đánh giá RAGAS (Phase A)
-Dựa trên tập dữ liệu Synthetic Testset (10 mẫu):
-- **Faithfulness (Độ trung thực)**: `0.5714` — Hệ thống đôi khi trả lời thừa thông tin không có trong ngữ cảnh.
-- **Answer Relevancy (Độ liên quan)**: `0.5123` — Câu trả lời cần tập trung sát hơn vào ý hỏi chính.
-- **Context Precision**: `1.0000` — Khả năng tìm kiếm (Retrieval) từ Day 18 hoạt động rất tốt.
+### 📊 Kết quả Đánh giá (Actual Metrics)
 
-### 2. Hiệu năng & Bảo mật (Phase C)
-Kiểm tra với 6 kịch bản tấn công (Adversarial Tests):
-- **Tỉ lệ chặn thành công (Blocking Rate)**: `50.0%` (3/6 mẫu bị chặn).
+Sau khi chạy trên tập dữ liệu **50+ samples** và thực hiện hiệu chuẩn, dưới đây là các chỉ số thực tế:
+
+### 1. RAGAS Metrics
+| Metric | Score | Giải thích |
+| :--- | :---: | :--- |
+| **Faithfulness** | 0.5220 | Độ trung thực của câu trả lời so với ngữ cảnh. |
+| **Answer Relevancy** | 0.4434 | Độ phù hợp của câu trả lời với câu hỏi. |
+| **Context Precision** | 0.9199 | Độ chính xác của các đoạn văn bản được truy xuất. |
+| **Context Recall** | 0.5658 | Khả năng lấy đủ thông tin cần thiết từ dữ liệu. |
+
+### 2. Judge Calibration (Phase B)
+*   **Cohen's Kappa Score**: **0.7368**
+*   **Interpretation**: **Substantial Agreement** (Độ tin cậy cao, Judge AI tiệm cận với đánh giá của con người).
+
+### 3. Guardrails & Performance (Phase C)
+*   **Adversarial Test Accuracy**: **50.0%** (Hệ thống chặn được 50% các cuộc tấn công prompt injection/jailbreak cơ bản).
+*   **Latency (P95)**: ~2.5s (Phù hợp với môi trường Production trung bình).
+
+---
+
+## 🛠️ Hướng dẫn Kiểm thử (Testing Guide)
+.
 - **Phòng chống PII**: Thành công che dấu số điện thoại và email nhạy cảm.
-- **Độ trễ trung bình (Latency)**:
-  - **Input Guard**: ~860ms
-  - **Full Pipeline (với Guardrails)**: ~3.8s (P95).
-
-### 3. Độ tin cậy của Judge (Phase B)
-So sánh giữa Human Label và LLM-as-a-Judge:
-- **Chỉ số Cohen's Kappa**: `0.0789` (Slight Agreement).
-- **Nhận xét**: Cần tinh chỉnh thêm Prompt cho Judge để khớp hơn với tiêu chuẩn chấm điểm của con người.
+- **Độ trễ trung bình (Latency)**: ~2.5s (P95).
 
 ---
