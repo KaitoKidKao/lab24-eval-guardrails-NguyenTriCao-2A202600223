@@ -57,7 +57,13 @@ class BM25Search:
 
 class DenseSearch:
     def __init__(self):
-        self.client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+        try:
+            # Try connecting to localhost first
+            self.client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT, timeout=5)
+            self.client.get_collections() # Test connection
+        except Exception:
+            print(f"WARNING: Qdrant at {QDRANT_HOST}:{QDRANT_PORT} unavailable. Using local storage at ./qdrant_data")
+            self.client = QdrantClient(path="./qdrant_data")
         self._encoder = None
 
     def _get_encoder(self):

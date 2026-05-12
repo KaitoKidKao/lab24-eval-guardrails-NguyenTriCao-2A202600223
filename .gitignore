@@ -8,3 +8,4 @@ qdrant_data/
 .venv/
 node_modules/
 qdrant_storage/
+venv/

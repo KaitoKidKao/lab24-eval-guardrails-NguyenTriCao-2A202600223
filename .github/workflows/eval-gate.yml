@@ -1,0 +1,58 @@
+name: RAG Evaluation Gate
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-name: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install ragas langchain-community presidio-analyzer presidio-anonymizer scikit-learn
+        
+    - name: Run Evaluation
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+      run: |
+        # Run the evaluation script
+        python lab24-eval-guardrails/phase-a/phase_a_run_eval.py
+        
+    - name: Check Evaluation Gate
+      run: |
+        python -c "
+        import json, sys
+        with open('lab24-eval-guardrails/phase-a/ragas_summary.json', 'r') as f:
+            res = json.load(f)
+        
+        # Thresholds
+        thresholds = {
+            'faithfulness': 0.70,
+            'answer_relevancy': 0.70
+        }
+        
+        failed = False
+        for metric, threshold in thresholds.items():
+            score = res.get(metric, 0)
+            if score < threshold:
+                print(f'FAIL: {metric} score {score:.4f} is below threshold {threshold}')
+                failed = True
+            else:
+                print(f'PASS: {metric} score {score:.4f}')
+        
+        if failed:
+            sys.exit(1)
+        "
