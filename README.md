@@ -1,105 +1,86 @@
-# Lab 18: Production RAG Pipeline
+# Production RAG System: Evaluation & Guardrails
 
-**AICB-P2T3 · Ngày 18 · Production RAG**  
-**Giảng viên:** M.Sc Trần Minh Tú · **Thời gian:** 2 giờ
+## Thông tin sinh viên
+- **Họ và tên**: Nguyễn Trí Cao
+- **MSSV**: 2A202600223
+- **Lớp**: AICB-P2T3
+- **Repository**: [lab24-eval-guardrails-NguyenTriCao](https://github.com/KaitoKidKao/lab24-eval-guardrails-NguyenTriCao-2A202600223)
 
 ---
 
-## Tổng quan
+## 🌟 Tổng quan dự án
+Dự án này triển khai một hệ thống **Retrieval-Augmented Generation (RAG)** cấp độ sản xuất, tập trung vào tính chính xác, bảo mật và khả năng giám sát. Hệ thống kết hợp nền tảng tìm kiếm lai (Hybrid Search) từ Day 18 và các lớp bảo vệ (Guardrails), đánh giá tự động (RAGAS) từ Lab 24.
 
-Lab gồm **2 phần**:
+### Các thành phần chính:
+1. **RAG Pipeline (Day 18)**:
+   - **Chunking**: Phân mảnh tài liệu phân cấp (Hierarchical) và làm giàu ngữ cảnh (Context Enrichment).
+   - **Hybrid Search**: Kết hợp BM25 và Vector Search (Qdrant).
+   - **Reranking**: Sử dụng Cohere Cross-Encoder để tối ưu kết quả tìm kiếm.
+2. **Evaluation Layer (Phase A & B)**:
+   - **RAGAS**: Đánh giá tự động các chỉ số Faithfulness, Answer Relevancy, Context Precision/Recall.
+   - **LLM-as-a-Judge**: Hệ thống chấm điểm tuyệt đối (Absolute) và so sánh cặp (Pairwise) có khử nhiễu positional bias.
+3. **Guardrails Layer (Phase C)**:
+   - **Input Guards**: Kiểm soát thông tin nhạy cảm (PII Redaction) và kiểm tra phạm vi câu hỏi (Topic Validation).
+   - **Output Guards**: Lọc nội dung không an toàn bằng Llama Guard 3.
 
-| Phần | Hình thức | Thời gian | Mô tả |
-|------|-----------|-----------|-------|
-| **Phần A** | Cá nhân | 1.5 giờ | Implement 1 trong 4 modules |
-| **Phần B** | Nhóm (3–4 người) | 30 phút | Ghép modules → full pipeline → eval → present |
+---
 
+## 📂 Cấu trúc thư mục
+```text
+.
+├── src/                        # Mã nguồn RAG Pipeline (Day 18)
+├── data/                       # Dữ liệu tri thức (.md, .pdf)
+├── lab24-eval-guardrails/      # Hệ thống Đánh giá & Bảo mật (Day 24)
+│   ├── phase-a/                # RAGAS Eval & Synthetic Testset
+│   ├── phase-b/                # LLM-as-a-Judge & Calibration
+│   ├── phase-c/                # Guardrails & Latency Benchmark
+│   ├── phase-d/                # Technical Blueprint
+│   └── README.md               # Hướng dẫn chi tiết Lab 24
+├── .github/workflows/          # CI/CD (Eval Gate)
+└── README.md                   # File này
 ```
-  Cá nhân                         Nhóm
-  ┌────────────┐
-  │ M1 Chunking│──┐
-  ├────────────┤  │    ┌──────────────────────────────┐
-  │ M2 Search  │──┼───▶│  Production RAG System       │
-  ├────────────┤  │    │  pipeline.py + RAGAS eval    │
-  │ M3 Rerank  │──┤    │  + failure qdrant            |
-  ├────────────┤  │    └──────────────────────────────┘
-  │ M4 Eval    │──┘
-  └────────────┘
-```
 
-## Quick Start
+---
 
+## 🛠️ Cài đặt & Sử dụng
+
+### 1. Cài đặt môi trường
 ```bash
-git clone <repo-url> && cd lab18-production-rag
-docker compose up -d                    # Qdrant
+python -m venv venv
+source venv/bin/activate  # Hoặc venv\Scripts\activate trên Windows
 pip install -r requirements.txt
-cp .env.example .env                    # Điền API keys
-python naive_baseline.py                # ⚠️ Chạy TRƯỚC để có baseline
+pip install ragas presidio-analyzer presidio-anonymizer scikit-learn groq
 ```
 
-## Chạy toàn bộ
-
-```bash
-python main.py                          # Naive + Production + So sánh
-python check_lab.py                     # Kiểm tra trước khi nộp
+### 2. Cấu hình biến môi trường (.env)
+Tạo file `.env` tại thư mục gốc:
+```env
+OPENAI_API_KEY=your_openai_key
+COHERE_API_KEY=your_cohere_key
+GROQ_API_KEY=your_groq_key
 ```
 
-## Cấu trúc repo
+### 3. Chạy thử nghiệm
+- **Đánh giá RAGAS**: `python lab24-eval-guardrails/phase-a/phase_a_run_eval.py`
+- **Kiểm tra Guardrails**: `python lab24-eval-guardrails/phase-c/run_adversarial.py`
+- **Đo lường Latency**: `python lab24-eval-guardrails/phase-c/run_benchmark.py`
 
-```
-lab18-production-rag/
-├── README.md                   # File này
-├── ASSIGNMENT_INDIVIDUAL.md    # ★ Đề bài cá nhân (Phần A)
-├── ASSIGNMENT_GROUP.md         # ★ Đề bài nhóm (Phần B)
-├── RUBRIC.md                   # Hệ thống chấm điểm chi tiết
-│
-├── main.py                     # Entry point: chạy toàn bộ pipeline
-├── check_lab.py                # Kiểm tra định dạng trước khi nộp
-├── naive_baseline.py           # Baseline (chạy trước)
-├── config.py                   # Shared config
-├── requirements.txt            # Dependencies (pinned)
-├── docker-compose.yml          # Qdrant local
-├── .env.example                # API keys template
-│
-├── data/                       # Sample corpus tiếng Việt
-│   ├── sample_01.md
-│   ├── sample_02.md
-│   └── sample_03.md
-├── test_set.json               # 20 Q&A pairs
-│
-├── src/                        # ★ Scaffold code (có TODO markers)
-│   ├── m1_chunking.py          # Module 1: Chunking
-│   ├── m2_search.py            # Module 2: Hybrid Search
-│   ├── m3_rerank.py            # Module 3: Reranking
-│   ├── m4_eval.py              # Module 4: Evaluation
-│   └── pipeline.py             # Ghép nhóm
-│
-├── tests/                      # Auto-grading
-│   ├── test_m1.py
-│   ├── test_m2.py
-│   ├── test_m3.py
-│   └── test_m4.py
-│
-├── analysis/                   # ★ Deliverable
-│   ├── failure_analysis.md     # Phân tích failures (nhóm)
-│   ├── group_report.md         # Báo cáo nhóm
-│   └── reflections/            # Reflection cá nhân
-│       └── reflection_TEMPLATE.md
-│
-├── reports/                    # ★ Auto-generated (sau khi chạy main.py)
-│   ├── ragas_report.json
-│   └── naive_baseline_report.json
-│
-└── templates/                  # Templates gốc (backup)
-    ├── failure_analysis.md
-    └── group_report.md
-```
+---
 
-## Timeline
+## 📊 Kết quả đánh giá tóm tắt
+- **RAGAS Faithfulness**: 0.57 (Cần cải thiện prompt grounding)
+- **Answer Relevancy**: 0.51
+- **Guardrail Latency**: ~860ms (Input) + ~1300ms (Output)
+- **Safety Gate**: Thành công ngăn chặn 50% các cuộc tấn công Adversarial (PII & Out-of-scope).
+- **Judge Calibration**: Cohen's Kappa 0.0789 (Slight agreement).
 
-| Thời gian | Hoạt động |
-|-----------|-----------|
-| 0:00–0:15 | Setup + chạy `naive_baseline.py` |
-| 0:15–1:45 | **Phần A (cá nhân):** implement module → `pytest tests/test_m*.py` |
-| 1:45–2:15 | **Phần B (nhóm):** ghép → `python src/pipeline.py` → failure analysis |
-| 2:15–2:30 | Presentation 5 phút/nhóm |
+---
+
+## 🛡️ Bảo mật & SLOs
+Hệ thống cam kết:
+- **PII Leakage**: 0% đối với các thực thể định danh Việt Nam (CCCD, SĐT).
+- **Latency**: P95 < 5 giây cho toàn bộ chu trình xử lý.
+- **Safety**: Tự động chặn các yêu cầu vi phạm chính sách an toàn.
+
+---
+© 2026 Nguyễn Trí Cao. All rights reserved.
