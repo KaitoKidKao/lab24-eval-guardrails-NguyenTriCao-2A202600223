@@ -3,7 +3,7 @@
 ## Thông tin sinh viên
 - **Họ và tên**: Nguyễn Trí Cao
 - **MSSV**: 2A202600223
-- **Repository**: [lab24-eval-guardrails-NguyenTriCao](https://github.com/KaitoKidKao/lab24-eval-guardrails-NguyenTriCao-2A202600223)
+- **Repository**: [lab24-eval-guardrails](https://github.com/KaitoKidKao/lab24-eval-guardrails-2A202600223)
 
 ---
 
@@ -33,9 +33,9 @@ Dự án này đã hoàn thành việc xây dựng hệ thống đánh giá và 
 - **P95 Latency**: ~5.2s (Đo lường thực tế trên 5 kịch bản).
 
 ### 🚀 Cách chạy kiểm thử nhanh:
-1. **Eval (Phase A)**: `python lab24-eval-guardrails-NguyenTriCao/phase-a/phase_a_run_eval.py`
-2. **Calibration (Phase B)**: `python lab24-eval-guardrails-NguyenTriCao/phase-b/phase_b_calibration.py`
-3. **Adversarial (Phase C)**: `python lab24-eval-guardrails-NguyenTriCao/phase-c/run_adversarial.py`
+1. **Eval (Phase A)**: `python lab24-eval-guardrails/phase-a/phase_a_run_eval.py`
+2. **Calibration (Phase B)**: `python lab24-eval-guardrails/phase-b/phase_b_calibration.py`
+3. **Adversarial (Phase C)**: `python lab24-eval-guardrails/phase-c/run_adversarial.py`
 
 ---
 
@@ -44,7 +44,7 @@ Dự án này đã hoàn thành việc xây dựng hệ thống đánh giá và 
 .
 ├── src/                        # Mã nguồn RAG Pipeline (Day 18)
 ├── data/                       # Dữ liệu tri thức (.md, .pdf)
-├── lab24-eval-guardrails-NguyenTriCao/      # Hệ thống Đánh giá & Bảo mật (Day 24)
+├── lab24-eval-guardrails/      # Hệ thống Đánh giá & Bảo mật (Day 24)
 │   ├── phase-a/                # RAGAS Eval & Synthetic Testset
 │   ├── phase-b/                # LLM-as-a-Judge & Calibration
 │   ├── phase-c/                # Guardrails & Latency Benchmark
@@ -90,33 +90,33 @@ python src/pipeline.py --query "Nghị định 13 quy định về điều gì?"
 Sinh tập dữ liệu test và chạy đánh giá tự động:
 ```bash
 # Sinh dữ liệu test (nếu chưa có)
-python lab24-eval-guardrails-NguyenTriCao/phase-a/phase_a_testset_gen.py
+python lab24-eval-guardrails/phase-a/phase_a_testset_gen.py
 
 # Chạy đánh giá RAGAS
-python lab24-eval-guardrails-NguyenTriCao/phase-a/phase_a_run_eval.py
+python lab24-eval-guardrails/phase-a/phase_a_run_eval.py
 ```
-*Kết quả sẽ được lưu tại: `lab24-eval-guardrails-NguyenTriCao/phase-a/ragas_results.csv`*
+*Kết quả sẽ được lưu tại: `lab24-eval-guardrails/phase-a/ragas_results.csv`*
 
 ### 3. LLM-as-a-Judge (Phase B)
 Chạy chấm điểm tuyệt đối và đo lường độ tin cậy của Judge:
 ```bash
 # Chấm điểm tuyệt đối (Absolute Scoring)
-python lab24-eval-guardrails-NguyenTriCao/phase-b/phase_b_judge_absolute.py
+python lab24-eval-guardrails/phase-b/phase_b_judge_absolute.py
 
 # Tính chỉ số Cohen's Kappa (Calibration)
-python lab24-eval-guardrails-NguyenTriCao/phase-b/phase_b_calibration.py
+python lab24-eval-guardrails/phase-b/phase_b_calibration.py
 ```
 
 ### 4. Kiểm tra Guardrails (Phase C)
 Chạy các kịch bản tấn công thử nghiệm (Adversarial Testing) và đo lường độ trễ:
 ```bash
 # Chạy test tấn công (PII, Out-of-scope, Unsafe)
-python lab24-eval-guardrails-NguyenTriCao/phase-c/run_adversarial.py
+python lab24-eval-guardrails/phase-c/run_adversarial.py
 
 # Chạy benchmark độ trễ hệ thống
-python lab24-eval-guardrails-NguyenTriCao/phase-c/run_benchmark.py
+python lab24-eval-guardrails/phase-c/run_benchmark.py
 ```
-*Kết quả lưu tại: `lab24-eval-guardrails-NguyenTriCao/phase-c/adversarial_test_results.csv`*
+*Kết quả lưu tại: `lab24-eval-guardrails/phase-c/adversarial_test_results.csv`*
 
 ---
 
@@ -135,5 +135,3 @@ Hệ thống cam kết:
 - **Latency**: P95 < 5 giây cho toàn bộ chu trình xử lý.
 - **Safety**: Tự động chặn các yêu cầu vi phạm chính sách an toàn.
 
----
-© 2026 Nguyễn Trí Cao. All rights reserved.

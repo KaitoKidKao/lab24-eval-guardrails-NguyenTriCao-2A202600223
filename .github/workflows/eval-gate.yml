@@ -30,13 +30,13 @@ jobs:
         GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       run: |
         # Chạy script đánh giá (Sử dụng tên thư mục hiện tại)
-        python lab24-eval-guardrails-NguyenTriCao/phase-a/phase_a_run_eval.py || echo "Evaluation failed, likely due to missing secrets"
+        python lab24-eval-guardrails/phase-a/phase_a_run_eval.py || echo "Evaluation failed, likely due to missing secrets"
         
     - name: Check Evaluation Gate
       run: |
         python -c "
         import json, sys, os
-        path = 'lab24-eval-guardrails-NguyenTriCao/phase-a/ragas_summary.json'
+        path = 'lab24-eval-guardrails/phase-a/ragas_summary.json'
         if not os.path.exists(path):
             print('Summary file not found, skipping gate check.')
             sys.exit(0)

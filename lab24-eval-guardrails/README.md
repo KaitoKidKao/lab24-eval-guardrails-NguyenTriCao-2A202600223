@@ -2,7 +2,7 @@
 
 ## Nguyễn Trí Cao - 2A202600223 
 
-[GitHub](https://github.com/KaitoKidKao/lab24-eval-guardrails-NguyenTriCao-2A202600223)
+[GitHub](https://github.com/KaitoKidKao/lab24-eval-guardrails-2A202600223)
 
 ## Overview
 Dự án này triển khai hệ thống đánh giá và bảo mật toàn diện cho pipeline RAG (Sản xuất). 
@@ -36,11 +36,11 @@ python lab24-eval-guardrails/phase-c/run_adversarial.py
 ```
 3. **Latency Benchmark**:
 ```bash
-python lab24-eval-guardrails-NguyenTriCao/phase-c/run_benchmark.py
+python lab24-eval-guardrails/phase-c/run_benchmark.py
 ```
 4. **Judge Calibration**:
 ```bash
-python lab24-eval-guardrails-NguyenTriCao/phase-b/phase_b_calibration.py
+python lab24-eval-guardrails/phase-b/phase_b_calibration.py
 ```
 
 ## 📊 Kết quả Thực nghiệm (Results Summary)
