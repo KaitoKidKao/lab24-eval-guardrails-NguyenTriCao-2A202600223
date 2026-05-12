@@ -29,13 +29,13 @@ jobs:
         COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
       run: |
         # Run the evaluation script
-        python lab24-eval-guardrails/phase-a/phase_a_run_eval.py
+        python lab24-eval-guardrails-NguyenTriCao/phase-a/phase_a_run_eval.py
         
     - name: Check Evaluation Gate
       run: |
         python -c "
         import json, sys
-        with open('lab24-eval-guardrails/phase-a/ragas_summary.json', 'r') as f:
+        with open('lab24-eval-guardrails-NguyenTriCao/phase-a/ragas_summary.json', 'r') as f:
             res = json.load(f)
         
         # Thresholds
