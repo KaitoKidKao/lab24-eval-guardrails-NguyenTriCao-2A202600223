@@ -1,0 +1,87 @@
+{
+  "aggregate": {
+    "faithfulness": 0.95,
+    "answer_relevancy": 0.7547237086210352,
+    "context_precision": 0.9583333332837499,
+    "context_recall": 1.0
+  },
+  "num_questions": 10,
+  "failures": [
+    {
+      "question": "Mức xử phạt đối với hành vi vi phạm quy định bảo vệ dữ liệu cá nhân được quy định như thế nào?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.0,
+      "diagnosis": "Poor answer quality",
+      "suggested_fix": "Improve system prompt or use a stronger LLM (GPT-4o)"
+    },
+    {
+      "question": "Bên Kiểm soát dữ liệu cá nhân là gì?",
+      "worst_metric": "faithfulness",
+      "score": 0.5,
+      "diagnosis": "LLM hallucinating (Ảo giác)",
+      "suggested_fix": "Tighten prompt, lower temperature, or check if context is contradictory"
+    },
+    {
+      "question": "Tổng số tiền thuế GTGT phải nộp trong kỳ (chỉ tiêu [40]) là bao nhiêu?",
+      "worst_metric": "context_precision",
+      "score": 0.5833333333041666,
+      "diagnosis": "Noise in context (Quá nhiều rác)",
+      "suggested_fix": "Add Reranking (M3) or improve Metadata Filtering"
+    },
+    {
+      "question": "Người nộp thuế hoặc đại diện hợp pháp ký tên trên tờ khai là ai?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8184274402228986,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Giá trị hàng hóa, dịch vụ mua vào chưa có thuế GTGT (chỉ tiêu [23]) là bao nhiêu?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8199478762618715,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Thời hạn gửi Hồ sơ đánh giá tác động xử lý dữ liệu cá nhân cho Bộ Công an là bao lâu?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8240754884351795,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Quyền hạn chế xử lý dữ liệu của chủ thể phải được thực hiện trong bao lâu sau khi có yêu cầu?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8494784464598686,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Xử lý dữ liệu cá nhân của trẻ em từ đủ 7 tuổi trở lên cần sự đồng ý của những ai?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8611015726366451,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Cơ quan chuyên trách bảo vệ dữ liệu cá nhân là cơ quan nào?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.8812329337516945,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    },
+    {
+      "question": "Nghị định 13/2023/NĐ-CP quy định về vấn đề gì và có hiệu lực từ khi nào?",
+      "worst_metric": "answer_relevancy",
+      "score": 0.9099102844089654,
+      "diagnosis": "Unknown",
+      "suggested_fix": "Need more investigation"
+    }
+  ],
+  "latency": {
+    "retrieval": 375.1290800006245,
+    "rerank": 918.497310001112,
+    "generation": 2484.841950000555,
+    "total": 3778.4683400022914
+  }
+}
